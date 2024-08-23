@@ -44,7 +44,7 @@ router.post("/", async (req, res) => {
     title,
     description,
     price,
-    thumbnails,
+    //thumbnails,
     code,
     stock,
     status,
@@ -58,8 +58,8 @@ router.post("/", async (req, res) => {
     typeof description !== "string" ||
     !price ||
     typeof price !== "number" ||
-    !thumbnails ||
-    !Array.isArray(thumbnails) ||
+    //!thumbnails ||
+    //!Array.isArray(thumbnails) ||
     !code ||
     typeof code !== "string" ||
     !stock ||
@@ -90,12 +90,13 @@ router.post("/", async (req, res) => {
       title,
       description,
       price,
-      thumbnails,
+      //thumbnails,
       code,
       stock,
       status,
       category,
     });
+
     res.setHeader("Content-Type", "application/json");
     return res.status(200).json({ productNew });
   } catch (error) {
@@ -178,6 +179,7 @@ router.delete("/:pid", async (req, res) => {
   try {
     let resultado = await ProductManager.deleteProduct(id)
     if (resultado > 0) {
+       req.io.emit("updateProducts", await ProductManager.getProducts());
         res.setHeader('Content-Type', 'application/json');
         return res.status(200).json({ payload: "Producto eliminado...!!!" });
     } else {
