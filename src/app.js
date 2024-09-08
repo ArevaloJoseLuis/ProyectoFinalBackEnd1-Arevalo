@@ -6,7 +6,9 @@ const {router:cartsRouter} = require("./routes/carts.router.js");
 const {router:vistasRouter} = require("./routes/vistasRouter.js")
 const { engine } = require("express-handlebars");
 const ProductManager = require("./dao/ProductManager");
-const PORT = 8080;
+const connDB  = require("./connDB.js");
+const config  = require("process");
+const PORT = config.PORT;
 
 const app = express();
 
@@ -28,6 +30,10 @@ app.use((req, res, next) => {
 app.use ("/api/products",productsRouter);
 app.use ("/api/carts",cartsRouter);
 app.use ("/",vistasRouter);
+
+// base de datos MONGO
+
+connDB();
 
 //El servidor se levanta escuchando por el puerto 8080. Segundo argumento es un callback que mustra que el servidor esta arriba.
 const serverHTTP = app.listen(PORT, () => {
