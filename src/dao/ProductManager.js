@@ -1,68 +1,38 @@
-const fs = require("fs");
-const path = require("path");
+const ProductModel = require("./models/ProductModel");
+const productsModel = require("./models/ProductModel");
 
 class ProductManager {
-  static path;
-
-  static async getProducts() {
-    //verifico si el arhivo existe.
-    if (fs.existsSync(this.path)) {
-      //Si existe lo retorno
-      let products = JSON.parse(await fs.promises.readFile(this.path, "utf-8"));
-      return products;
-    }
-
-    //Si no existe el archivo, devuelvo un array vacio
-    return [];
+  
+  static async getBy(filtro = {}) {
+    return await productsModel.find(filtro);
+  }
+  static async getByID(id) {
+    return await productsModel.findOne({_id:id});
   }
 
-  static async addProduct(product = {}) {
-    let products = await this.getProducts();
-    // Agrego el producto junto con un Id autoincrementable
-    let id = 1;
-    if (products.length > 0) {
-      id = Math.max(...products.map((d) => d.id)) + 1;
-    }
-    let newProduct = {
-      id,
-      ...product,
-    };
-    products.push(newProduct);
+  static async getProducts(limit, page, filter, sortOptions) {
+    return await productsModel.paginate(filter, {
+      lean: true,
+      page: Number(page),
+      limit: Number(limit),
+      sort: sortOptions,
+    });
+  }
 
-    // Guardo en un Archivo Json
-    await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-
-    return newProduct;
+  static async addProduct(product) {
+    return await productsModel.create(product);
   }
 
   static async updateProduct(id, aModificar = {}) {
-    let products = await this.getProducts();
-    let indiceProduct = products.findIndex((p) => p.id === id);
-    if (indiceProduct === -1) {
+    const product = await productsModel.findByIdAndUpdate(id, aModificar, { new: true });
+    if (!product) {
       throw new Error(`Error: no existe id ${id}`);
     }
-    products[indiceProduct] = {
-      ...products[indiceProduct],
-      ...aModificar,
-      id,
-    };
-    await fs.promises.writeFile(this.path, JSON.stringify(products, null, 5));
-    return products[indiceProduct];
+    return product;
   }
 
   static async deleteProduct(id) {
-    let products = await this.getProducts();
-    let indiceProduct = products.findIndex((h) => h.id === id);
-    if (indiceProduct === -1) {
-      throw new Error(`Error: no existe id ${id}`);
-    }
-    let cantidad0 = products.length;
-    products = products.filter((h) => h.id !== id); // usamos el filtro para eliminar el producto que coincida con el id
-    let cantidad1 = products.length;
-
-    await fs.promises.writeFile(this.path, JSON.stringify(products, null, 5));
-
-    return cantidad0 - cantidad1;
+        return await ProductModel.deleteOne({ _id: id });
   }
 }
 
