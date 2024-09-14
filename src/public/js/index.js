@@ -1,6 +1,7 @@
 console.log("Cargo Script");
 
 let currentCartId = null;
+
 const socket = io(); // Conectar al servidor
 
 // Manejar actualización de productos
@@ -216,14 +217,12 @@ async function showCart() {
   try {
     if (currentCartId) {
       console.log('Redirigiendo a:', `/carts/${currentCartId}`);
-      window.location.href = `/carts/${currentCartId}`;
+      window.open(`/carts/${currentCartId}`, '_blank'); // Abre la URL en una nueva pestaña
     } else {
       alert('No se ha creado un carrito aún.');
     }
-    } 
-    catch (error) {
+  } catch (error) {
     console.error('Error al crear el carrito:', error);
     throw error; // Lanza el error para manejarlo adecuadamente en el flujo de llamada
   }
 }
-
